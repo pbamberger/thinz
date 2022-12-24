@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>the ditch</title>
+	<style>
+	body {
+	  background: transparent;
+	  background-color: transparent;
+	}
+	h1 {
+	  color: red;
+	}
+	.clock {
+	  width: 50vh;
+	  height: 50vh;
+	  border-radius: 50%;
+	  margin: 1vh auto;
+	  display: flex;
+	  position: relative;
+	}
+
+	.clock-face {
+	  width: 45vh;
+	  height: 45vh;
+	  border-radius: 50%;
+	  position: absolute;
+	  top: 1vh;
+	  left: 1vh;
+	  background: url('https://github.com/umarcbs/AnalogCLock/blob/master/clock-face2.png?raw=true');
+	  background-size: 100% 100%;
+	}
+
+	.hand {
+	  width: 35%;
+	  height: 6px;
+	  background-color: black;
+	  position: absolute;
+	  top: 49.5%;
+	  left: 17.5%;
+	  transform-origin: 95%;
+	  transform: rotate(90deg);
+	  transition: all 0.05s;
+	  transition-timing-function: cubic-bezier(0.1, 2.7, 0.58, 1);
+	}
+
+	.second-hand {
+	  height: 3px;
+	}
+
+	.hour-hand {
+	  width: 20%;
+	  left: 31.8%;
+	  top: 50%;
+	}
+	</style></head>
+<body>
+  <div class="clock">
+    <div class="clock-face">
+      <div class="hand hour-hand1"></div>
+      <div class="hand min-hand1"></div>
+      <div class="hand second-hand second-hand1"></div>
+    </div>
+  <h1>SYDNEY</h1>
+  </div>
+  <div class="clock">
+    <div class="clock-face">
+      <div class="hand hour-hand2"></div>
+      <div class="hand min-hand2"></div>
+      <div class="hand second-hand second-hand2"></div>
+    </div>
+  <h1>AUCKLAND</h1>
+  </div>
+  </script>
+</body>
+
+<script>
+const secondHand1 = document.querySelector('.second-hand1');
+const minHand1 = document.querySelector('.min-hand1');
+const hourHand1 = document.querySelector('.hour-hand1');
+const secondHand2 = document.querySelector('.second-hand2');
+const minHand2 = document.querySelector('.min-hand2');
+const hourHand2 = document.querySelector('.hour-hand2');
+
+function changeTimeZone(date, timeZone) {
+  if (typeof date === 'string') {
+    return new Date(
+      new Date(date).toLocaleString('en-US', {
+        timeZone,
+      }),
+    );
+  }
+
+  return new Date(
+    date.toLocaleString('en-US', {
+      timeZone,
+    }),
+  );
+}
+
+function refresh() {
+  const now1 = changeTimeZone(new Date(), 'Australia/Sydney');
+  drawClock(now1, secondHand1, minHand1, hourHand1);
+  const now2= changeTimeZone(new Date(), 'Pacific/Auckland');
+  drawClock(now2, secondHand2, minHand2, hourHand2);
+}
+
+function drawClock(now, secondHand, minHand, hourHand) {
+  const second = now.getSeconds();
+  const secondsDegree = ((360/60) * second) + 90;
+  secondHand.style.transition = secondsDegree === 90 ? 'all 0s' : 'all 0.05s';
+  secondHand.style['transition-timing-function'] = 'cubic-bezier(0.1, 2.7, 0.58, 1)';
+  secondHand.style.transform = `rotate(${secondsDegree}deg)`;
+
+  const min = now.getMinutes()
+  const minsDegree = ((360/60) * min) + 90;
+  minHand.style.transform = `rotate(${minsDegree}deg)`;
+  minHand.style.transition = minsDegree === 90 ? 'all 0s' : 'all 0.05s';
+  minHand.style['transition-timing-function'] = 'cubic-bezier(0.1, 2.7, 0.58, 1)';
+  minHand.style.transform = `rotate(${minsDegree}deg)`;
+
+  const hour = now.getHours();
+  // to give a realistic hour hand (minsDegree/12 - 8) was added to normal hoursDegree.
+  // this serves to ofset the hour hand gradually as the minute hand moves
+  // the -8 counters the +90 offset of the original minsDegree
+  const hoursDegree = ((360/12) * hour) + 90 + (minsDegree/12 - 8);
+  hourHand.style.transform = `rotate(${hoursDegree}deg)`;
+  hourHand.style.transition = hoursDegree === 90 ? 'all 0s' : 'all 0.05s';
+  hourHand.style['transition-timing-function'] = 'cubic-bezier(0.1, 2.7, 0.58, 1)';
+  hourHand.style.transform = `rotate(${hoursDegree}deg)`;
+}
+
+setInterval(refresh, 1000);
+</script>
+
+</html>
