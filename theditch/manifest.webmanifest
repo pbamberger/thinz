@@ -1,0 +1,46 @@
+{
+  "background_color": "#FFFFFF",
+  "display": "standalone",
+  "gcm_sender_id": "354308702398",
+  "name": "the ditch",
+  "orientation": "portrait",
+  "scope": ".",
+  "short_name": "theditch",
+  "start_url": "./",
+  "theme_color": "#FFFFFF",
+  "url": "https://thi.nz/",
+  "lang": "",
+  "icons": [
+    {
+      "src": "clock48.png",
+      "type": "image/png",
+      "purpose": "any maskable",
+      "sizes": "48x48"
+    },
+    {
+      "src": "clock96.png",
+      "type": "image/png",
+      "purpose": "any maskable",
+      "sizes": "96x96"
+    },
+    {
+      "src": "clock192.png",
+      "type": "image/png",
+      "purpose": "any maskable",
+      "sizes": "192x192"
+    },
+    {
+      "src": "clock512.png",
+      "type": "image/png",
+      "purpose": "any maskable",
+      "sizes": "512x512"
+    }
+  ],
+  "screenshots": [
+    {
+        "src": "clock512.png",
+        "sizes": "512x512"
+        "type": "image/png"
+    }
+  ]
+}
