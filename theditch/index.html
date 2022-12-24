@@ -8,18 +8,25 @@
 	  background: transparent;
 	  background-color: transparent;
 	}
-	h1 {
+	.zone {
 	  color: red;
+	  font-size: 60pt;
+	  font-family: Verdana,sans-serif;
+	  left: 50%;
+	  margin: auto;
+	  margin-top: 55%;
+	  text-align: center;
+	  top: 50%;
+	  width: 50%;
 	}
 	.clock {
 	  width: 50vh;
-	  height: 50vh;
+	  height: 45vh;
 	  border-radius: 50%;
 	  margin: 1vh auto;
 	  display: flex;
 	  position: relative;
 	}
-
 	.clock-face {
 	  width: 45vh;
 	  height: 45vh;
@@ -30,7 +37,6 @@
 	  background: url('https://github.com/umarcbs/AnalogCLock/blob/master/clock-face2.png?raw=true');
 	  background-size: 100% 100%;
 	}
-
 	.hand {
 	  width: 35%;
 	  height: 6px;
@@ -43,11 +49,9 @@
 	  transition: all 0.05s;
 	  transition-timing-function: cubic-bezier(0.1, 2.7, 0.58, 1);
 	}
-
 	.second-hand {
 	  height: 3px;
 	}
-
 	.hour-hand {
 	  width: 20%;
 	  left: 31.8%;
@@ -56,20 +60,20 @@
 	</style></head>
 <body>
   <div class="clock">
+	<div class="zone">SYDNEY</div>
     <div class="clock-face">
       <div class="hand hour-hand1"></div>
       <div class="hand min-hand1"></div>
       <div class="hand second-hand second-hand1"></div>
     </div>
-  <h1>SYDNEY</h1>
   </div>
   <div class="clock">
+	<div class="zone">AUCKLAND</div>
     <div class="clock-face">
       <div class="hand hour-hand2"></div>
       <div class="hand min-hand2"></div>
       <div class="hand second-hand second-hand2"></div>
     </div>
-  <h1>AUCKLAND</h1>
   </div>
   </script>
 </body>
