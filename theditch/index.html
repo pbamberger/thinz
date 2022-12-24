@@ -1,66 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>the ditch</title>
-	<style>
-	body {
-	  background: transparent;
-	  background-color: transparent;
-	}
-	.zone {
-	  color: red;
-	  font-size: 60pt;
-	  font-family: Verdana,sans-serif;
-	  left: 50%;
-	  margin: auto;
-	  margin-top: 55%;
-	  text-align: center;
-	  top: 50%;
-	  width: 50%;
-	}
-	.clock {
-	  width: 50vh;
-	  height: 45vh;
-	  border-radius: 50%;
-	  margin: 1vh auto;
-	  display: flex;
-	  position: relative;
-	}
-	.clock-face {
-	  width: 45vh;
-	  height: 45vh;
-	  border-radius: 50%;
-	  position: absolute;
-	  top: 1vh;
-	  left: 1vh;
-	  background: url('clockface.png?raw=true');
-	  background-size: 100% 100%;
-	}
-	.hand {
-	  width: 35%;
-	  height: 6px;
-	  background-color: black;
-	  position: absolute;
-	  top: 49.5%;
-	  left: 17.5%;
-	  transform-origin: 95%;
-	  transform: rotate(90deg);
-	  transition: all 0.05s;
-	  transition-timing-function: cubic-bezier(0.1, 2.7, 0.58, 1);
-	}
-	.second-hand {
-	  height: 3px;
-	}
-	.hour-hand {
-	  width: 20%;
-	  left: 31.8%;
-	  top: 50%;
-	}
-	</style></head>
+<meta charset="UTF-8">
+<title>the ditch</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="HandheldFriendly" content="true" />
+<meta name="application-name" content="theditch" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="msapplication-TileColor" content="#FFFFFF" />
+<meta name="msapplication-TileImage" content="clock48.png" />
+<link rel="apple-touch-icon" href="clock48.png" />
+<link rel="Shortcut Icon" href="clock48.png" />
+<style>
+body {
+  background: transparent;
+  background-color: transparent;
+}
+.zone {
+  color: red;
+  font-size: 60pt;
+  font-family: Verdana,sans-serif;
+  left: 50%;
+  margin: auto;
+  margin-top: 55%;
+  text-align: center;
+  top: 50%;
+  width: 50%;
+}
+.clock {
+  width: 50vh;
+  height: 45vh;
+  border-radius: 50%;
+  margin: 1vh auto;
+  display: flex;
+  position: relative;
+}
+.clock-face {
+  width: 45vh;
+  height: 45vh;
+  border-radius: 50%;
+  position: absolute;
+  top: 1vh;
+  left: 1vh;
+  background: url('clockface.png?raw=true');
+  background-size: 100% 100%;
+}
+.hand {
+  width: 35%;
+  height: 6px;
+  background-color: black;
+  position: absolute;
+  top: 49.5%;
+  left: 17.5%;
+  transform-origin: 95%;
+  transform: rotate(90deg);
+  transition: all 0.05s;
+  transition-timing-function: cubic-bezier(0.1, 2.7, 0.58, 1);
+}
+.second-hand {
+  height: 3px;
+}
+.hour-hand {
+  width: 20%;
+  left: 31.8%;
+  top: 50%;
+}
+</style>
+</head>
 <body>
   <div class="clock">
-	<div class="zone">Alyssa</div>
+	<div class="zone">A</div>
     <div class="clock-face">
       <div class="hand hour-hand1"></div>
       <div class="hand min-hand1"></div>
@@ -68,7 +79,7 @@
     </div>
   </div>
   <div class="clock">
-	<div class="zone">Peter</div>
+	<div class="zone">P</div>
     <div class="clock-face">
       <div class="hand hour-hand2"></div>
       <div class="hand min-hand2"></div>
