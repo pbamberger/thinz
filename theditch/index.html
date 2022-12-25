@@ -10,18 +10,22 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <meta name="msapplication-TileColor" content="#FFFFFF" />
-<meta name="msapplication-TileImage" content="clock48.png" />
-<link rel="apple-touch-icon" href="clock48.png" />
+<meta name="msapplication-TileImage" content="clock512.png" />
+<link rel="apple-touch-icon" href="clock512.png" />
 <link rel="Shortcut Icon" href="clock48.png" />
 <style>
 body {
   background: transparent;
   background-color: transparent;
 }
+@font-face {
+  font-family: 'Arizonia';
+  src: url('arizonia.woff2') format('woff2');
+}
 .zone {
-  color: red;
-  font-size: 60pt;
-  font-family: Verdana,sans-serif;
+  color: #FF3131;
+  font: 200 200px/1.3 'Arizonia', Helvetica, sans-serif;
+  text-shadow: 4px 4px 0px rgba(0,0,0,0.1); 
   left: 50%;
   margin: auto;
   margin-top: 55%;
