@@ -1,1 +1,8 @@
+title: thi.nz
+email: 
+description: 
+
+
 markdown: kramdown
+plugins:
+  - jekyll-feed
