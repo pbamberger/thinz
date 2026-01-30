@@ -1,0 +1,153 @@
+read the comprehensive profile                                                                                                                                                                                                    
+                                                                                                                                                                                                                                    
+● Read 1 file (ctrl+o to expand)                                                                                                                                                                                                    
+                                                                                                                                                                                                                                    
+● The comprehensive profile covers 388 lines documenting:                                                                                                                                                                           
+                                                                                                                                                                                                                                    
+  Structure:                                                                                                                                                                                                                        
+  - Organization overview and legal status (Crown Entity since 1998)                                                                                                                                                                
+  - Governance under Minister of Health                                                                                                                                                                                             
+                                                                                                                                                                                                                                    
+  Operations:                                                                                                                                                                                                                       
+  - 8 donation types (blood, plasma, platelets, paediatric, bone marrow, hip bone, tissue, organs)                                                                                                                                  
+  - Blood products (fresh and plasma-derived)                                                                                                                                                                                       
+  - 11 donor centres with addresses and phone numbers                                                                                                                                                                               
+                                                                                                                                                                                                                                    
+  Eligibility:                                                                                                                                                                                                                      
+  - Age/weight requirements                                                                                                                                                                                                         
+  - Stand-down periods for various conditions                                                                                                                                                                                       
+  - Recent policy changes (vCJD lifted Feb 2024, IDA coming 2026)                                                                                                                                                                   
+                                                                                                                                                                                                                                    
+  Services:                                                                                                                                                                                                                         
+  - Healthcare professional resources (10-chapter Transfusion Medicine Handbook)                                                                                                                                                    
+  - Clinical services (Reference Lab, NZTIL, Haemovigilance)                                                                                                                                                                        
+                                                                                                                                                                                                                                    
+  Community:                                                                                                                                                                                                                        
+  - Team Red/Team Gold group programs                                                                                                                                                                                               
+  - Teaching resources for schools                                                                                                                                                                                                  
+  - NZBS Donor App                                                                                                                                                                                                                  
+  - Whakaorangia Tangata (Maori engagement)                                                                                                                                                                                         
+  - Accessibility provisions                                                                                                                                                                                                        
+                                                                                                                                                                                                                                    
+  Practical:                                                                                                                                                                                                                        
+  - Full donation process (before/during/after)                                                                                                                                                                                     
+  - Contact numbers and related organizations                                                                                                                                                                                       
+      
+      
+      
+      
+      
+      
+❯ read the donor stories                                                                                                                                                                                                            
+                                                                                                                                                                                                                                    
+● Read 1 file (ctrl+o to expand)                                                                                                                                                                                                    
+                                                                                                                                                                                                                                    
+● The donor stories document (93 lines) captures 5 real impact stories:                                                                                                                                                             
+  ┌──────────┬───────────────────────────────────────────────────────────────────────────────────────────────────────────┐                                                                                                          
+  │  Person  │                                                  Impact                                                   │                                                                                                          
+  ├──────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────┤                                                                                                          
+  │ Michelle │ 80 donations saved her life during Stage 4 lymphoma. Now promotes donation after overcoming needle phobia │                                                                                                          
+  ├──────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────┤                                                                                                          
+  │ Baby Eli │ Born 16 weeks early at 638g. 15 transfusions kept him alive. Now a healthy, giving child                  │                                                                                                          
+  ├──────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────┤                                                                                                          
+  │ Jade     │ Inspired at 14-15 by school presentation. Values notifications when her blood is used                     │                                                                                                          
+  ├──────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────┤                                                                                                          
+  │ Darren   │ 215 plasma donations. Also raises money for HeartKids NZ                                                  │                                                                                                          
+  ├──────────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────┤                                                                                                          
+  │ Bill     │ Donating since 1973 (50+ years). Notes technology has made it virtually painless                          │                                                                                                          
+  └──────────┴───────────────────────────────────────────────────────────────────────────────────────────────────────────┘                                                                                                          
+  Key insight: One cancer patient (Michelle) required 80 separate donations - illustrating why NZBS needs 5,000+ donations weekly to meet demand.                      
+  
+ 
+ 
+ 
+ 
+  read the thinking notes                                                                                                                                                                                                           
+                                                                                                                                                                                                                                    
+● Read 1 file (ctrl+o to expand)                                                                                                                                                                                                    
+                                                                                                                                                                                                                                    
+● The thinking notes (122 lines) document the research process:                                                                                                                                                                     
+                                                                                                                                                                                                                                    
+  Sources:                                                                                                                                                                                                                          
+  - 49 HTML pages from nzbloodwebsite/ folder                                                                                                                                                                                       
+  - Python HTML parsing for content extraction                                                                                                                                                                                      
+  - No external crawling per instructions                                                                                                                                                                                           
+                                                                                                                                                                                                                                    
+  Technical Discovery:                                                                                                                                                                                                              
+  - Website runs on Silverstripe CMS 5.3                                                                                                                                                                                            
+  - Analytics: Google Analytics, GTM, Facebook Pixel, Hotjar                                                                                                                                                                        
+  - Online booking system integrated                                                                                                                                                                                                
+                                                                                                                                                                                                                                    
+  Confidence Assessment:                                                                                                                                                                                                            
+  ┌────────┬─────────────────────────────────────────────────────────────────────────────┐                                                                                                                                          
+  │ Level  │                                   Topics                                    │                                                                                                                                          
+  ├────────┼─────────────────────────────────────────────────────────────────────────────┤                                                                                                                                          
+  │ HIGH   │ Organization structure, donation types, eligibility criteria, donor centres │                                                                                                                                          
+  ├────────┼─────────────────────────────────────────────────────────────────────────────┤                                                                                                                                          
+  │ MEDIUM │ Blood products list (may not be exhaustive)                                 │                                                                                                                                          
+  ├────────┼─────────────────────────────────────────────────────────────────────────────┤                                                                                                                                          
+  │ LOW    │ Operational statistics, financial data                                      │                                                                                                                                          
+  └────────┴─────────────────────────────────────────────────────────────────────────────┘                                                                                                                                          
+  Identified Gaps:                                                                                                                                                                                                                  
+  - Annual donation volumes/statistics                                                                                                                                                                                              
+  - Financial/budget information                                                                                                                                                                                                    
+  - Staff numbers                                                                                                                                                                                                                   
+  - Processing facility locations                                                                                                                                                                                                   
+  - Blood bank distribution network details                                                                                                                                                                                         
+                                                                                                                                                                                                                                    
+  These gaps would require access to NZBS annual reports, government documents, or other official sources not available in the local website files.                    
+  
+  
+  
+  
+  
+  
+  
+  
+   read the index                                                                                                                                                                                                                    
+                                                                                                                                                                                                                                    
+● Read 1 file (ctrl+o to expand)                                                                                                                                                                                                    
+                                                                                                                                                                                                                                    
+● The index (48 lines) serves as the entry point to the research documentation:                                                                                                                                                     
+                                                                                                                                                                                                                                    
+  Files Created:                                                                                                                                                                                                                    
+  ┌───────────────────────────────┬───────────────────────────────────────────┐                                                                                                                                                     
+  │             File              │                  Purpose                  │                                                                                                                                                     
+  ├───────────────────────────────┼───────────────────────────────────────────┤                                                                                                                                                     
+  │ nzbs-comprehensive-profile.md │ Full organizational profile (388 lines)   │                                                                                                                                                     
+  ├───────────────────────────────┼───────────────────────────────────────────┤                                                                                                                                                     
+  │ nzbs-donor-stories.md         │ Impact stories (93 lines)                 │                                                                                                                                                     
+  ├───────────────────────────────┼───────────────────────────────────────────┤                                                                                                                                                     
+  │ nzbs-thinking-notes.md        │ Research process & confidence (122 lines) │                                                                                                                                                     
+  └───────────────────────────────┴───────────────────────────────────────────┘                                                                                                                                                     
+  Quick Reference Stats:                                                                                                                                                                                                            
+  - 5,000+ donations needed weekly                                                                                                                                                                                                  
+  - <4% of eligible population donates                                                                                                                                                                                              
+  - 1 donation saves up to 3 lives                                                                                                                                                                                                  
+  - 13+ products from blood donations                                                                                                                                                                                               
+                                                                                                                                                                                                                                    
+  Documented Gaps:                                                                                                                                                                                                                  
+  - Annual donation volumes                                                                                                                                                                                                         
+  - Financial/budget data                                                                                                                                                                                                           
+  - Staff numbers                                                                                                                                                                                                                   
+  - Processing facility locations                                                                                                                                                                                                   
+  - Board member/executive names                                                                                                                                                                                                    
+                                                                                                                                                                                                                                    
+  ---                                                                                                                                                                                                                               
+  Summary of all documentation produced:                                                                                                                                                                                            
+  ┌───────────────────────┬───────┬─────────┐                                                                                                                                                                                       
+  │         File          │ Lines │  Size   │                                                                                                                                                                                       
+  ├───────────────────────┼───────┼─────────┤                                                                                                                                                                                       
+  │ Comprehensive Profile │ 388   │ 12.7 KB │                                                                                                                                                                                       
+  ├───────────────────────┼───────┼─────────┤                                                                                                                                                                                       
+  │ Thinking Notes        │ 122   │ 4.5 KB  │                                                                                                                                                                                       
+  ├───────────────────────┼───────┼─────────┤                                                                                                                                                                                       
+  │ Donor Stories         │ 93    │ 4.2 KB  │                                                                                                                                                                                       
+  ├───────────────────────┼───────┼─────────┤                                                                                                                                                                                       
+  │ Index                 │ 48    │ 1.7 KB  │                                                                                                                                                                                       
+  ├───────────────────────┼───────┼─────────┤                                                                                                                                                                                       
+  │ Total                 │ 651   │ 23.1 KB │                                                                                                                                                                                       
+  └───────────────────────┴───────┴─────────┘                                                                                                                                                                                       
+                                                                                                                                                                                                                                    
+
+❯                                                                                                                                                                                                                                   
