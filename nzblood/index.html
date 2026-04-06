@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NZ Blood - Composite Map</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        #header { padding: 15px; background: #c0392b; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 1000; }
+        #map { flex-grow: 1; width: 100%; }
+        input[type="date"] { padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 1rem; }
+        .legend { background: white; padding: 10px; border-radius: 5px; line-height: 1.5; box-shadow: 0 0 15px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+
+<div id="header">
+    <div style="font-size: 1.2rem; font-weight: bold;">NZ Blood Donor Localizer</div>
+    <div>
+        Filter by Date: <input type="date" id="dateFilter">
+    </div>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // 1. Initialize Map centered on New Zealand
+    const map = L.map('map').setView([-40.9006, 174.8860], 6);
+    L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let compositeData = [];
+    let markers = L.layerGroup().addTo(map);
+
+    // 2. Load the Composite Data
+    async function loadData() {
+        try {
+            const response = await fetch('AllLocations_Composite.json');
+            if (!response.ok) throw new Error("Could not find AllLocations_Composite.json");
+            
+            const data = await response.json();
+            compositeData = data.Content || [];
+            
+            console.log(`Loaded ${compositeData.length} locations from composite file.`);
+            renderMap();
+        } catch (err) {
+            alert("Error loading data: " + err.message);
+        }
+    }
+
+    // 3. Render logic
+    function renderMap() {
+        markers.clearLayers();
+        const selectedDate = document.getElementById('dateFilter').value;
+
+        compositeData.forEach(site => {
+            let showMarker = true;
+            let statusHtml = "";
+
+            // Check if user has picked a date
+            if (selectedDate) {
+                // Your C# code put the site files into the 'slots' property
+                const slots = site.slots || [];
+                
+                // Find a slot that starts with the selected date (e.g. "2023-10-25")
+                const match = slots.find(s => s.date && s.date.startsWith(selectedDate));
+
+                if (!match) {
+                    showMarker = false; // No data for this date at this site
+                } else {
+                    const color = match.isAvailable ? 'green' : 'red';
+                    const text = match.isAvailable ? 'Appointments Available' : 'Fully Booked';
+                    statusHtml = `<br><b style="color:${color}">${text}</b>`;
+                }
+            }
+
+            // Ensure site has valid coordinates
+            const lat = site.latitude;
+            const lng = site.longitude;
+
+            if (showMarker && lat && lng) {
+                const m = L.marker([lat, lng])
+                    .bindPopup(`
+                        <strong>${site.siteName}</strong>
+                        ${statusHtml}
+                        <br><small>ID: ${site.siteId}</small>
+                    `);
+                markers.addLayer(m);
+            }
+        });
+    }
+
+    // 4. Event Listeners
+    document.getElementById('dateFilter').addEventListener('change', renderMap);
+
+    // Start
+    loadData();
+</script>
+
+</body>
+</html>
