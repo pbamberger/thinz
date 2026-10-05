@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Dimensions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+    }
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+    /* Ultra-transparent panel for win announcement so board stays 100% visible */
+    .glass-panel-transparent {
+      background: rgba(15, 23, 42, 0.35);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+    .glow-red {
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+    }
+    .glow-yellow {
+      box-shadow: 0 0 15px rgba(234, 179, 8, 0.6);
+    }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+<body class="h-screen w-screen text-slate-100 flex flex-col justify-between p-3 sm:p-4 relative">
+
+  <header class="w-full max-w-5xl mx-auto flex flex-wrap items-center justify-between z-10 glass-panel rounded-2xl p-3 sm:p-4 gap-3 transition-all">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-400 flex items-center justify-center font-black text-xl shadow-lg border border-white/20">
+        D
+      </div>
+      <div>
+        <h1 class="font-extrabold text-base sm:text-lg tracking-wide text-white leading-tight">DIMENSIONS</h1>
+        <p class="text-[10px] sm:text-xs text-slate-400 font-medium">Vintage NZ Game Simulation</p>
+      </div>
+    </div>
+
+    <!-- Mode Toggle (VS AI / 2 Player) -->
+    <div class="flex items-center gap-1.5 bg-slate-900/80 p-1 rounded-xl border border-slate-700">
+      <button id="mode-p2p" class="px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-400">
+        👥 2 Player
+      </button>
+      <button id="mode-ai" class="px-3 py-1.5 rounded-lg text-xs font-bold transition bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">
+        🤖 vs AI
+      </button>
+      <select id="ai-difficulty" class="bg-slate-800 text-xs font-bold text-slate-200 px-2 py-1.5 rounded-lg border border-slate-700 outline-none">
+        <option value="easy" title="Fake AI">Easy AI</option>
+        <option value="smart" title="Fake AI">Smart AI</option>
+        <option value="master" selected title="A lot of if statements">Hopeful AI 🔥</option>
+      </select>
+    </div>
+
+    <!-- Turn Indicator -->
+    <div id="turn-card" class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 shadow-inner">
+      <span class="text-[10px] sm:text-xs uppercase font-bold text-slate-400 tracking-wider">Turn:</span>
+      <div id="turn-badge" class="flex items-center gap-2 font-bold text-xs sm:text-sm px-3 py-1 rounded-lg bg-red-500/20 text-red-400 border border-red-500/40 glow-red">
+        <span id="turn-color-dot" class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+        <span id="turn-text">Red Player</span>
+      </div>
+    </div>
+
+    <!-- Reset Button -->
+    <div class="flex items-center gap-2">
+      <button id="btn-reset" class="px-3.5 py-2 bg-slate-700 hover:bg-slate-600 active:scale-95 text-xs font-semibold rounded-xl border border-slate-600 transition shadow-md">
+        Restart
+      </button>
+    </div>
+  </header>
+
+  <main class="absolute inset-0 z-0">
+    <div id="canvas-container" class="w-full h-full"></div>
+  </main>
+
+  <!-- Aiming HUD Indicator -->
+  <div id="aim-hud" class="z-10 w-full max-w-md mx-auto glass-panel rounded-xl p-2.5 text-center transition-all border border-slate-700/50 shadow-lg">
+    <div id="aim-text" class="text-xs text-slate-300 font-medium">
+      💡 <span class="font-bold text-white">Hover or Click</span> on any tray well to preview • <span class="font-bold text-emerald-400">Release</span> to place ball
+    </div>
+  </div>
+
+  <footer class="w-full max-w-5xl mx-auto z-10 glass-panel rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+    <!-- Layer Visibility Toggles -->
+    <div class="flex items-center gap-1.5 w-full sm:w-auto justify-center flex-wrap">
+      <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 mr-1">Layers:</span>
+      <button data-layer="0" class="layer-toggle px-2.5 py-1 rounded-lg text-xs font-bold bg-cyan-500/20 border border-cyan-400/50 text-cyan-300">L1 (Top)</button>
+      <button data-layer="1" class="layer-toggle px-2.5 py-1 rounded-lg text-xs font-bold bg-cyan-500/20 border border-cyan-400/50 text-cyan-300">L2</button>
+      <button data-layer="2" class="layer-toggle px-2.5 py-1 rounded-lg text-xs font-bold bg-cyan-500/20 border border-cyan-400/50 text-cyan-300">L3</button>
+      <button data-layer="3" class="layer-toggle px-2.5 py-1 rounded-lg text-xs font-bold bg-cyan-500/20 border border-cyan-400/50 text-cyan-300">L4 (Base)</button>
+      <button id="layer-all" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-700 border border-slate-600 text-slate-200">Show All</button>
+    </div>
+
+    <!-- Active Coordinate readout -->
+    <div class="flex items-center gap-3">
+      <div id="target-coords" class="text-xs font-mono px-3 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800 text-slate-400">
+        Target: <span class="text-slate-200 font-bold">None</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Ultra-Transparent Modal for Win Announcement (Allows full viewing of board behind) -->
+  <div id="win-modal" class="fixed inset-0 z-50 flex items-start sm:items-center justify-center pt-24 sm:pt-0 bg-slate-950/10 pointer-events-none hidden">
+    <div class="glass-panel-transparent p-5 sm:p-6 rounded-3xl text-center max-w-xs w-full mx-4 border border-cyan-400/30 shadow-2xl pointer-events-auto">
+      <div id="winner-badge-icon" class="w-12 h-12 rounded-2xl mx-auto mb-2 flex items-center justify-center text-2xl font-black shadow-lg">
+        🏆
+      </div>
+      <h2 id="winner-title" class="text-xl font-black text-white mb-1">Red Wins!</h2>
+      <p id="winner-desc" class="text-[11px] text-slate-200 mb-4 font-medium leading-relaxed"></p>
+      <button id="modal-btn-reset" class="w-full py-2.5 bg-gradient-to-r from-blue-600/90 to-cyan-500/90 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-xs rounded-xl shadow-lg active:scale-95 transition border border-white/20">
+        Play Again
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const GRID_SIZE = 4;
+    const TOTAL_SPOTS = 64;
+    const PLAYER_RED = 1;
+    const PLAYER_YELLOW = 2;
+
+    let gridState = Array(GRID_SIZE).fill(0).map(() => 
+      Array(GRID_SIZE).fill(0).map(() => 
+        Array(GRID_SIZE).fill(0)
+      )
+    );
+
+    let currentPlayer = PLAYER_RED;
+    let isAiMode = true;
+    let aiDifficulty = 'master';
+    let isAiThinking = false;
+    let gameOver = false;
+
+    let activeBallMeshes = [];
+    let winLineMesh = null;
+    let layerVisibility = [true, true, true, true];
+
+    // Pointer Interaction State
+    let isPointerDown = false;
+    let pointerStartPos = { x: 0, y: 0 };
+    let currentTargetCoord = null;
+    let isDraggingCamera = false;
+
+    // Precalculate all 76 valid winning lines in 3D space
+    function generateWinningLines() {
+      const lines = [];
+
+      // 1. Orthogonal Lines (48)
+      for (let a = 0; a < 4; a++) {
+        for (let b = 0; b < 4; b++) {
+          lines.push([[0, a, b], [1, a, b], [2, a, b], [3, a, b]]); // Y-axis (Vertical across layers)
+          lines.push([[a, 0, b], [a, 1, b], [a, 2, b], [a, 3, b]]); // X-axis (Rows)
+          lines.push([[a, b, 0], [a, b, 1], [a, b, 2], [a, b, 3]]); // Z-axis (Columns)
+        }
+      }
+
+      // 2. 2D Plane Diagonals (24)
+      for (let i = 0; i < 4; i++) {
+        lines.push([[0, 0, i], [1, 1, i], [2, 2, i], [3, 3, i]]);
+        lines.push([[0, 3, i], [1, 2, i], [2, 1, i], [3, 0, i]]);
+
+        lines.push([[0, i, 0], [1, i, 1], [2, i, 2], [3, i, 3]]);
+        lines.push([[0, i, 3], [1, i, 2], [2, i, 1], [3, i, 0]]);
+
+        lines.push([[i, 0, 0], [i, 1, 1], [i, 2, 2], [i, 3, 3]]);
+        lines.push([[i, 0, 3], [i, 1, 2], [i, 2, 1], [i, 3, 0]]);
+      }
+
+      // 3. 3D Main Space Diagonals (4)
+      lines.push([[0, 0, 0], [1, 1, 1], [2, 2, 2], [3, 3, 3]]);
+      lines.push([[3, 0, 0], [2, 1, 1], [1, 2, 2], [0, 3, 3]]);
+      lines.push([[0, 3, 0], [1, 2, 1], [2, 1, 2], [3, 0, 3]]);
+      lines.push([[0, 0, 3], [1, 1, 2], [2, 2, 1], [3, 3, 0]]);
+
+      return lines;
+    }
+
+    const WINNING_LINES = generateWinningLines();
+
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x0f172a, 0.015);
+
+    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.set(13, 11, 15);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.maxPolarAngle = Math.PI / 2 + 0.08;
+    controls.minDistance = 6;
+    controls.maxDistance = 28;
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    dirLight.position.set(10, 20, 15);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.width = 1024;
+    dirLight.shadow.mapSize.height = 1024;
+    scene.add(dirLight);
+
+    const pointLight = new THREE.PointLight(0x38bdf8, 0.8, 25);
+    pointLight.position.set(0, 0, 0);
+    scene.add(pointLight);
+
+    // Grid Spacing
+    const SPACING_X = 1.85;
+    const SPACING_Z = 1.85;
+    const LAYER_HEIGHTS = [4.5, 1.5, -1.5, -4.5];
+    const WELL_RADIUS = 0.70;
+    const BALL_RADIUS = 0.62;
+
+    const layerGroups = [];
+    const interactiveWellMeshes = [];
+
+    function get3DPos(y, x, z) {
+      return new THREE.Vector3((x - 1.5) * SPACING_X, LAYER_HEIGHTS[y], (z - 1.5) * SPACING_Z);
+    }
+
+    function createBoard() {
+      // Base
+      const baseGeo = new THREE.BoxGeometry(9.2, 0.6, 9.2);
+      const baseMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.8 });
+      const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+      baseMesh.position.set(0, LAYER_HEIGHTS[3] - 0.8, 0);
+      baseMesh.receiveShadow = true;
+      scene.add(baseMesh);
+
+      // Acrylic Posts
+      const postGeo = new THREE.CylinderGeometry(0.12, 0.12, 11, 16);
+      const postMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.1 });
+      [-3.9, 3.9].forEach(cx => {
+        [-3.9, 3.9].forEach(cz => {
+          const post = new THREE.Mesh(postGeo, postMat);
+          post.position.set(cx, 0, cz);
+          scene.add(post);
+        });
+      });
+
+      // Acrylic Material
+      const acrylicMat = new THREE.MeshPhysicalMaterial({
+        color: 0xffffff,
+        transmission: 0.92,
+        opacity: 0.9,
+        transparent: true,
+        roughness: 0.1,
+        ior: 1.4,
+        clearcoat: 1.0
+      });
+
+      const trayShape = new THREE.BoxGeometry(8.4, 0.18, 8.4);
+
+      for (let y = 0; y < GRID_SIZE; y++) {
+        const layerGroup = new THREE.Group();
+        const trayMesh = new THREE.Mesh(trayShape, acrylicMat);
+        trayMesh.position.set(0, LAYER_HEIGHTS[y], 0);
+        trayMesh.receiveShadow = true;
+        layerGroup.add(trayMesh);
+
+        const wellGeo = new THREE.CylinderGeometry(WELL_RADIUS, WELL_RADIUS * 0.85, 0.3, 24);
+
+        for (let x = 0; x < GRID_SIZE; x++) {
+          for (let z = 0; z < GRID_SIZE; z++) {
+            const wellMat = new THREE.MeshStandardMaterial({
+              color: 0x38bdf8,
+              roughness: 0.2,
+              transparent: true,
+              opacity: 0.35
+            });
+
+            const wellMesh = new THREE.Mesh(wellGeo, wellMat);
+            const pos = get3DPos(y, x, z);
+            wellMesh.position.copy(pos);
+            wellMesh.position.y += 0.05;
+
+            wellMesh.userData = { y, x, z, isWell: true };
+            layerGroup.add(wellMesh);
+            interactiveWellMeshes.push(wellMesh);
+          }
+        }
+
+        scene.add(layerGroup);
+        layerGroups.push(layerGroup);
+      }
+    }
+
+    createBoard();
+
+    const redBallMat = new THREE.MeshPhysicalMaterial({ color: 0xef4444, roughness: 0.15, clearcoat: 1.0 });
+    const yellowBallMat = new THREE.MeshPhysicalMaterial({ color: 0xeab308, roughness: 0.15, clearcoat: 1.0 });
+
+    const ballGeo = new THREE.SphereGeometry(BALL_RADIUS, 32, 32);
+
+    const ghostMat = new THREE.MeshStandardMaterial({
+      color: 0xef4444,
+      transparent: true,
+      opacity: 0.65,
+      roughness: 0.2
+    });
+    const previewGhostMesh = new THREE.Mesh(ballGeo, ghostMat);
+    previewGhostMesh.visible = false;
+    scene.add(previewGhostMesh);
+
+    const targetRingGeo = new THREE.RingGeometry(WELL_RADIUS * 0.85, WELL_RADIUS * 1.2, 32);
+    const targetRingMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide, transparent: true, opacity: 0.9 });
+    const targetRingMesh = new THREE.Mesh(targetRingGeo, targetRingMat);
+    targetRingMesh.rotation.x = Math.PI / 2;
+    targetRingMesh.visible = false;
+    scene.add(targetRingMesh);
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    function updateMousePos(e) {
+      const rect = renderer.domElement.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+      return { clientX, clientY };
+    }
+
+    function raycastTargetWell() {
+      if (gameOver || (isAiMode && currentPlayer === PLAYER_YELLOW) || isAiThinking) return null;
+
+      raycaster.setFromCamera(mouse, camera);
+      const visibleWells = interactiveWellMeshes.filter(m => layerVisibility[m.userData.y]);
+      const intersects = raycaster.intersectObjects(visibleWells);
+
+      if (intersects.length > 0) {
+        const hitWell = intersects[0].object;
+        const { y, x, z } = hitWell.userData;
+        if (gridState[y][x][z] === 0) {
+          return { y, x, z };
+        }
+      }
+      return null;
+    }
+
+    const domCanvas = renderer.domElement;
+
+    function handlePointerMove(e) {
+      if (gameOver || (isAiMode && currentPlayer === PLAYER_YELLOW) || isAiThinking) return;
+      
+      const { clientX, clientY } = updateMousePos(e);
+
+      if (isPointerDown) {
+        const distMoved = Math.hypot(clientX - pointerStartPos.x, clientY - pointerStartPos.y);
+        if (distMoved > 6) {
+          isDraggingCamera = true;
+        }
+      }
+
+      const coord = raycastTargetWell();
+      setPreviewTarget(coord);
+    }
+
+    function handlePointerDown(e) {
+      if (gameOver || (isAiMode && currentPlayer === PLAYER_YELLOW) || isAiThinking) return;
+
+      const { clientX, clientY } = updateMousePos(e);
+      pointerStartPos = { x: clientX, y: clientY };
+      isPointerDown = true;
+      isDraggingCamera = false;
+
+      const coord = raycastTargetWell();
+      if (coord) {
+        setPreviewTarget(coord);
+      }
+    }
+
+    function handlePointerUp(e) {
+      if (!isPointerDown) return;
+      isPointerDown = false;
+
+      if (!isDraggingCamera && currentTargetCoord && !gameOver) {
+        const { y, x, z } = currentTargetCoord;
+        clearPreviewTarget();
+        placeBall(y, x, z, currentPlayer);
+      }
+    }
+
+    function setPreviewTarget(coord) {
+      currentTargetCoord = coord;
+      const hudCoords = document.getElementById('target-coords');
+      const aimText = document.getElementById('aim-text');
+
+      if (coord) {
+        const pos = get3DPos(coord.y, coord.x, coord.z);
+        
+        previewGhostMesh.position.copy(pos);
+        previewGhostMesh.material.color.setHex(currentPlayer === PLAYER_RED ? 0xef4444 : 0xeab308);
+        previewGhostMesh.visible = true;
+
+        targetRingMesh.position.copy(pos);
+        targetRingMesh.position.y += 0.12;
+        targetRingMesh.visible = true;
+
+        hudCoords.innerHTML = `Target: <span class="font-bold text-emerald-400">Layer ${4 - coord.y}, Spot (${coord.x + 1}, ${coord.z + 1})</span>`;
+        aimText.innerHTML = `🎯 <span class="font-bold text-emerald-300">Target Locked!</span> Release or click to place ball into Layer ${4 - coord.y}.`;
+      } else {
+        clearPreviewTarget();
+      }
+    }
+
+    function clearPreviewTarget() {
+      currentTargetCoord = null;
+      previewGhostMesh.visible = false;
+      targetRingMesh.visible = false;
+      document.getElementById('target-coords').innerHTML = `Target: <span class="text-slate-400 font-bold">None</span>`;
+      document.getElementById('aim-text').innerHTML = `💡 <span class="font-bold text-white">Hover or Click</span> on any tray well to preview • <span class="font-bold text-emerald-400">Release</span> to place ball`;
+    }
+
+    domCanvas.addEventListener('pointermove', handlePointerMove);
+    domCanvas.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('pointerup', handlePointerUp);
+
+    function placeBall(y, x, z, player) {
+      if (gridState[y][x][z] !== 0 || gameOver) return;
+
+      gridState[y][x][z] = player;
+
+      const mat = player === PLAYER_RED ? redBallMat : yellowBallMat;
+      const mesh = new THREE.Mesh(ballGeo, mat);
+      const targetPos = get3DPos(y, x, z);
+
+      mesh.position.copy(targetPos);
+      mesh.position.y += 0.6;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.userData = { y, x, z };
+      scene.add(mesh);
+      activeBallMeshes.push(mesh);
+
+      let startTime = performance.now();
+      function animateDrop(now) {
+        let progress = (now - startTime) / 160;
+        if (progress < 1) {
+          mesh.position.y = targetPos.y + 0.6 * (1 - progress) * Math.abs(Math.sin(progress * Math.PI));
+          requestAnimationFrame(animateDrop);
+        } else {
+          mesh.position.copy(targetPos);
+        }
+      }
+      requestAnimationFrame(animateDrop);
+
+      const winLine = checkWinForPlayer(player);
+      if (winLine) {
+        handleWin(winLine, player);
+        return;
+      }
+
+      if (activeBallMeshes.length === TOTAL_SPOTS) {
+        handleDraw();
+        return;
+      }
+
+      currentPlayer = currentPlayer === PLAYER_RED ? PLAYER_YELLOW : PLAYER_RED;
+      updateTurnUI();
+
+      if (isAiMode && currentPlayer === PLAYER_YELLOW && !gameOver) {
+        triggerAiTurn();
+      }
+    }
+
+    function updateTurnUI() {
+      const badge = document.getElementById('turn-badge');
+      const dot = document.getElementById('turn-color-dot');
+      const text = document.getElementById('turn-text');
+
+      if (currentPlayer === PLAYER_RED) {
+        badge.className = "flex items-center gap-2 font-bold text-xs sm:text-sm px-3 py-1 rounded-lg bg-red-500/20 text-red-400 border border-red-500/40 glow-red";
+        dot.className = "w-3 h-3 rounded-full bg-red-500 inline-block";
+        text.innerText = "Red Player";
+      } else {
+        badge.className = "flex items-center gap-2 font-bold text-xs sm:text-sm px-3 py-1 rounded-lg bg-yellow-500/20 text-yellow-400 border border-yellow-500/40 glow-yellow";
+        dot.className = "w-3 h-3 rounded-full bg-yellow-400 inline-block";
+        text.innerText = isAiMode ? "AI Opponent..." : "Yellow Player";
+      }
+    }
+
+    function checkWinForPlayer(player) {
+      for (let line of WINNING_LINES) {
+        if (line.every(([y, x, z]) => gridState[y][x][z] === player)) {
+          return line;
+        }
+      }
+      return null;
+    }
+
+    function handleWin(lineCoords, winner) {
+      gameOver = true;
+
+      const startCoord = lineCoords[0];
+      const endCoord = lineCoords[lineCoords.length - 1];
+
+      const startPos = get3DPos(startCoord[0], startCoord[1], startCoord[2]);
+      const endPos = get3DPos(endCoord[0], endCoord[1], endCoord[2]);
+
+      const distance = startPos.distanceTo(endPos);
+      const beamGeo = new THREE.CylinderGeometry(0.18, 0.18, distance, 16);
+      const beamMat = new THREE.MeshStandardMaterial({
+        color: winner === PLAYER_RED ? 0xff2222 : 0xffdd00,
+        emissive: winner === PLAYER_RED ? 0xff0000 : 0xffaa00,
+        emissiveIntensity: 1.5,
+        roughness: 0.1
+      });
+
+      winLineMesh = new THREE.Mesh(beamGeo, beamMat);
+      const midPoint = new THREE.Vector3().addVectors(startPos, endPos).multiplyScalar(0.5);
+      winLineMesh.position.copy(midPoint);
+
+      const direction = new THREE.Vector3().subVectors(endPos, startPos).normalize();
+      winLineMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+
+      scene.add(winLineMesh);
+
+      setTimeout(() => {
+        showWinModal(winner === PLAYER_RED ? "Red Player" : (isAiMode ? "AI Opponent" : "Yellow Player"));
+      }, 600);
+    }
+
+    function handleDraw() {
+      gameOver = true;
+      showWinModal("Draw!");
+    }
+
+    function showWinModal(wText) {
+      const modal = document.getElementById('win-modal');
+      const title = document.getElementById('winner-title');
+      const desc = document.getElementById('winner-desc');
+      const badge = document.getElementById('winner-badge-icon');
+
+      if (wText === "Draw!") {
+        title.innerText = "It's a Draw!";
+        desc.innerText = "All 64 spaces have been filled without a continuous 4-in-a-row.";
+        badge.className = "w-12 h-12 rounded-2xl mx-auto mb-2 flex items-center justify-center text-2xl font-black bg-slate-700/80 text-white";
+      } else {
+        title.innerText = `${wText} Wins!`;
+        desc.innerText = "Connected a continuous 4-in-a-row line across the 3D grid!";
+        badge.className = currentPlayer === PLAYER_RED 
+          ? "w-12 h-12 rounded-2xl mx-auto mb-2 flex items-center justify-center text-2xl font-black bg-red-500/30 text-red-400 border border-red-500/50 glow-red"
+          : "w-12 h-12 rounded-2xl mx-auto mb-2 flex items-center justify-center text-2xl font-black bg-yellow-500/30 text-yellow-400 border border-yellow-500/50 glow-yellow";
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function triggerAiTurn() {
+      isAiThinking = true;
+      document.getElementById('aim-text').innerHTML = `🤖 <span class="font-bold text-yellow-300">AI is calculating optimal move...</span>`;
+
+      setTimeout(() => {
+        if (gameOver) return;
+
+        const bestSpot = calculateAiMove();
+        if (bestSpot) {
+          placeBall(bestSpot.y, bestSpot.x, bestSpot.z, PLAYER_YELLOW);
+        }
+
+        isAiThinking = false;
+        document.getElementById('aim-text').innerHTML = `💡 <span class="font-bold text-white">Hover or Click</span> on any tray well to preview • <span class="font-bold text-emerald-400">Release</span> to place ball`;
+      }, 400);
+    }
+
+    function getOpenSpots() {
+      const spots = [];
+      for (let y = 0; y < 4; y++) {
+        for (let x = 0; x < 4; x++) {
+          for (let z = 0; z < 4; z++) {
+            if (gridState[y][x][z] === 0) {
+              spots.push({ y, x, z });
+            }
+          }
+        }
+      }
+      return spots;
+    }
+
+    function calculateAiMove() {
+      const openSpots = getOpenSpots();
+      if (openSpots.length === 0) return null;
+
+      // Easy Mode
+      if (aiDifficulty === 'easy') {
+        return openSpots[Math.floor(Math.random() * openSpots.length)];
+      }
+
+      // Step 1: Immediate Winning Move
+      for (let spot of openSpots) {
+        gridState[spot.y][spot.x][spot.z] = PLAYER_YELLOW;
+        if (checkWinForPlayer(PLAYER_YELLOW)) {
+          gridState[spot.y][spot.x][spot.z] = 0;
+          return spot;
+        }
+        gridState[spot.y][spot.x][spot.z] = 0;
+      }
+
+      // Step 2: Immediate Block Opponent
+      for (let spot of openSpots) {
+        gridState[spot.y][spot.x][spot.z] = PLAYER_RED;
+        if (checkWinForPlayer(PLAYER_RED)) {
+          gridState[spot.y][spot.x][spot.z] = 0;
+          return spot;
+        }
+        gridState[spot.y][spot.x][spot.z] = 0;
+      }
+
+      // Smart AI
+      if (aiDifficulty === 'smart') {
+        let bestScore = -Infinity;
+        let bestSpot = openSpots[0];
+
+        for (let spot of openSpots) {
+          gridState[spot.y][spot.x][spot.z] = PLAYER_YELLOW;
+          let score = evaluateBasicHeuristic(spot);
+          gridState[spot.y][spot.x][spot.z] = 0;
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestSpot = spot;
+          }
+        }
+        return bestSpot;
+      }
+
+      // Step 3: Master AI Engine (76-Line Tactical Analysis + Spatial Weighting + Fork Detection)
+      let bestScore = -Infinity;
+      let bestSpot = openSpots[0];
+
+      for (let spot of openSpots) {
+        gridState[spot.y][spot.x][spot.z] = PLAYER_YELLOW;
+        let score = evaluateMasterBoardState(spot);
+        gridState[spot.y][spot.x][spot.z] = 0;
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestSpot = spot;
+        }
+      }
+
+      return bestSpot;
+    }
+
+    function evaluateBasicHeuristic(spot) {
+      let score = 0;
+      const centerY = Math.abs(spot.y - 1.5);
+      const centerX = Math.abs(spot.x - 1.5);
+      const centerZ = Math.abs(spot.z - 1.5);
+      score += (3 - (centerY + centerX + centerZ)) * 10;
+      return score;
+    }
+
+    function evaluateMasterBoardState(lastSpot) {
+      let score = 0;
+
+      // 1. Core 3D Center Weighting
+      const distFromCenter = Math.abs(lastSpot.y - 1.5) + Math.abs(lastSpot.x - 1.5) + Math.abs(lastSpot.z - 1.5);
+      score += (4.5 - distFromCenter) * 15; // Highest priority for 2x2x2 core
+
+      let aiDoubleThreats = 0;
+      let playerThreats = 0;
+
+      // 2. Evaluate all 76 Spatial Winning Lines
+      for (let line of WINNING_LINES) {
+        let aiCount = 0;
+        let redCount = 0;
+
+        for (let [y, x, z] of line) {
+          if (gridState[y][x][z] === PLAYER_YELLOW) aiCount++;
+          else if (gridState[y][x][z] === PLAYER_RED) redCount++;
+        }
+
+        // Offensive scoring for AI
+        if (aiCount > 0 && redCount === 0) {
+          if (aiCount === 3) {
+            score += 450;
+            aiDoubleThreats++;
+          } else if (aiCount === 2) {
+            score += 45;
+          } else if (aiCount === 1) {
+            score += 8;
+          }
+        }
+
+        // Defensive scoring against player
+        if (redCount > 0 && aiCount === 0) {
+          if (redCount === 3) {
+            score -= 380;
+            playerThreats++;
+          } else if (redCount === 2) {
+            score -= 30;
+          }
+        }
+      }
+
+      // 3. Fork creation bonus (multiple 3-in-a-row threats created simultaneously)
+      if (aiDoubleThreats >= 2) score += 1500;
+      if (playerThreats >= 2) score -= 1200;
+
+      return score;
+    }
+
+    const btnP2P = document.getElementById('mode-p2p');
+    const btnAi = document.getElementById('mode-ai');
+    const diffSelect = document.getElementById('ai-difficulty');
+
+    btnP2P.addEventListener('click', () => {
+      isAiMode = false;
+      btnP2P.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-cyan-500/20 text-cyan-300 border border-cyan-400/40";
+      btnAi.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-400";
+      resetGame();
+    });
+
+    btnAi.addEventListener('click', () => {
+      isAiMode = true;
+      btnAi.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-cyan-500/20 text-cyan-300 border border-cyan-400/40";
+      btnP2P.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition bg-slate-800 text-slate-400";
+      resetGame();
+    });
+
+    diffSelect.addEventListener('change', (e) => {
+      aiDifficulty = e.target.value;
+    });
+
+    document.querySelectorAll('.layer-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const layerIdx = parseInt(btn.getAttribute('data-layer'));
+        layerVisibility[layerIdx] = !layerVisibility[layerIdx];
+        updateLayerVisibility();
+      });
+    });
+
+    document.getElementById('layer-all').addEventListener('click', () => {
+      layerVisibility = [true, true, true, true];
+      updateLayerVisibility();
+    });
+
+    function updateLayerVisibility() {
+      for (let y = 0; y < GRID_SIZE; y++) {
+        const isVisible = layerVisibility[y];
+        layerGroups[y].visible = isVisible;
+        activeBallMeshes.forEach(ball => {
+          if (ball.userData.y === y) ball.visible = isVisible;
+        });
+      }
+
+      document.querySelectorAll('.layer-toggle').forEach(btn => {
+        const layerIdx = parseInt(btn.getAttribute('data-layer'));
+        if (layerVisibility[layerIdx]) {
+          btn.className = "layer-toggle px-2.5 py-1 rounded-lg text-xs font-bold bg-cyan-500/20 border border-cyan-400/50 text-cyan-300";
+        } else {
+          btn.className = "layer-toggle px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 border border-slate-700 text-slate-500 opacity-60";
+        }
+      });
+    }
+
+    function resetGame() {
+      activeBallMeshes.forEach(mesh => scene.remove(mesh));
+      activeBallMeshes = [];
+
+      if (winLineMesh) {
+        scene.remove(winLineMesh);
+        winLineMesh = null;
+      }
+
+      gridState = Array(GRID_SIZE).fill(0).map(() => 
+        Array(GRID_SIZE).fill(0).map(() => 
+          Array(GRID_SIZE).fill(0)
+        )
+      );
+
+      currentPlayer = PLAYER_RED;
+      gameOver = false;
+      isAiThinking = false;
+      layerVisibility = [true, true, true, true];
+      updateLayerVisibility();
+      updateTurnUI();
+      clearPreviewTarget();
+
+      document.getElementById('win-modal').classList.add('hidden');
+    }
+
+    document.getElementById('btn-reset').addEventListener('click', resetGame);
+    document.getElementById('modal-btn-reset').addEventListener('click', resetGame);
+
+    window.addEventListener('resize', () => {
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+
+      if (targetRingMesh.visible) {
+        targetRingMesh.scale.setScalar(1 + Math.sin(performance.now() * 0.008) * 0.08);
+      }
+
+      if (winLineMesh) {
+        winLineMesh.material.emissiveIntensity = 1.2 + Math.sin(performance.now() * 0.01) * 0.5;
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    window.onload = function() {
+      animate();
+    };
+  </script>
+</body>
+</html>
